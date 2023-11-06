@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
+import AuthProvider from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,10 +14,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-gray-100`}>
-        <Nav />
-        <div className="m-2">{children}</div>
-      </body>
+      {/* not using client-side authentication with the nav so could just wrap the children with the AuthProvider but for practical purposes we'll provide the session data inside the entire app */}
+      <AuthProvider>
+        <body className={`${inter.className} bg-gray-100`}>
+          <Nav />
+          <div className="m-2">{children}</div>
+        </body>
+      </AuthProvider>
     </html>
   );
 }
