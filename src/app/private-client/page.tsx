@@ -12,8 +12,8 @@ export default function ClientPage() {
   return (
     <>
       <h1>Private Server Session</h1>
-      <p>{session.user?.email}</p>
-      <p>{session.user?.role}</p>
+      <p>{session?.user?.email}</p>
+      <p>{session?.user?.role}</p>
     </>
   );
 }
