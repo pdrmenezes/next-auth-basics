@@ -23,11 +23,13 @@ export const options: NextAuthOptions = {
     GoogleProvider({
       profile(profile) {
         console.log("Google Profile: ", profile);
+        let userRole = "Google User";
 
         return {
           ...profile,
           // Google provider does not offer an id property, so we'll create one with the equivalent sub property it's sent back in the returned profile
           id: profile.sub,
+          role: userRole,
         };
       },
       clientId: process.env.GOOGLE_ID,
