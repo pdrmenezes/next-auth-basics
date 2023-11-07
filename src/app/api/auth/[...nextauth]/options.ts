@@ -1,6 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import User from "@/models/User";
+import bcrypt from "bcrypt";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -34,6 +37,43 @@ export const options: NextAuthOptions = {
       },
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      // stating the user information used to login as well as using the built in generated form from next-auth
+      credentials: {
+        email: {
+          label: "email",
+          type: "email",
+          placeholder: "your email",
+        },
+        password: {
+          label: "password",
+          type: "password",
+          placeholder: "work your magic",
+        },
+      },
+      // manually handle how it will authenticate
+      async authorize(credentials) {
+        try {
+          const foundUser = await User.findOne({ email: credentials.email }).lean().exec();
+          if (foundUser) {
+            console.log("User exists");
+            const match = await bcrypt.compare(credentials?.password, foundUser.password);
+            if (match) {
+              console.log("Password matches");
+              // for security measures, after we compare the password we will delete the property from the object to avoid any shenanigans
+              delete foundUser.password;
+              // givint it an arbitrary role that's not admin
+              foundUser["role"] = "Unverified Email";
+              return foundUser;
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+        return null;
+      },
     }),
   ],
   callbacks: {
